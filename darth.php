@@ -35,7 +35,7 @@ function force($name, $type, $message, $custom = null) {
 
   case 'required':
     $handler = function ($data) use ($name, $custom) {
-      if (!isset($data[$name]) || !strlen($data[$custom]))
+      if (!isset($data[$name]) || !strlen($data[$name]))
         return false;
       return true;
     };
