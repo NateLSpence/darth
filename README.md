@@ -47,6 +47,9 @@ $errors = $validator(array(
   'role' => 'developer'
 ));
 
+// apply the validator to your model
+$errors = $validator((array) $dataObject);
+
 var_dump($errors);
 ?>
 ```
