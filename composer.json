@@ -1,0 +1,23 @@
+{
+  "name": "noodlehaus/darth",
+  "type": "library",
+  "description": "darth is a simple data validation library",
+  "keywords": ["validation", "data", "micro", "microphp"],
+  "homepage": "http://github.com/noodlehaus/darth",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Jesus A. Domingo",
+      "role": "Developer",
+      "homepage": "http://noodlehaus.github.io/"
+    }
+  ],
+  "require": {
+    "php": ">= 5.4.0"
+  }
+  "autoload": {
+    "files": [
+      "darth.php"
+    ]
+  }
+}
