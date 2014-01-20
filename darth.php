@@ -1,14 +1,7 @@
 <?php
 /**
- * I find your lack of validation... disturbing.
- *
- * @author Jesus A. Domingo <jesus.domingo@gmail.com>
- * @license MIT <http://noodlehaus.mit-license.org>
- */
-
-/**
- * Ask Darth Validator to enforce certain rules. Returns
- * a function which will be used for validation.
+ * Creates a validation routine using the passed rules. Apply this
+ * routine to your data to get back the errors.
  */
 function darth() {
   $rules = func_get_args();
@@ -24,54 +17,50 @@ function darth() {
 }
 
 /**
- * Create a rule that will be given to the Darth for enforcement.
- * Returns a callable that performs the check.
+ * Creates a validation rule. Some rules require 4 arguments,
+ * others, 3. Last argument is always the message.
  */
-function force($name, $type, $message, $custom = null) {
+function force($type, $name, $msg_or_arg, $msg_or_null = null) {
 
-  $handler = null;
+  $types = explode('|', strtolower($type));
 
-  switch ($type) {
-
-  case 'required':
-    $handler = function ($data) use ($name, $custom) {
+  if (in_array('required', $types)) {
+    $cond_1 = function ($data) use ($name) {
       if (!isset($data[$name]) || !strlen($data[$name]))
         return false;
       return true;
     };
-    break;
+  } else {
+    $cond_1 = function () { return true; };
+  }
 
-  case 'email':
-    $handler = function ($data) use ($name) {
+  if (in_array('confirmed', $types)) {
+    $cond_2 = function ($data) use ($name, $msg_or_arg) {
+      $a = isset($data[$name]) ? $data[$name] : null;
+      $b = isset($data[$msg_or_arg]) ? $data[$msg_or_arg] : null;
+      return ($a == $b);
+    };
+  } elseif (in_array('email', $types)) {
+    $cond_2 = function ($data) use ($name) {
       $value = isset($data[$name]) ? $data[$name] : '';
       return ($value == filter_var($value, FILTER_VALIDATE_EMAIL));
     };
-    break;
-
-  case 'confirmation':
-    $handler = function ($data) use ($name, $custom) {
-      $a = isset($data[$name]) ? $data[$name] : null;
-      $b = isset($data[$custom]) ? $data[$custom] : null;
-      return (strlen($a) && ($a == $b));
+  } elseif (in_array('regex', $types)) {
+    $cond_2 = function ($data) use ($name, $msg_or_arg) {
+      return isset($data[$name]) && preg_match($msg_or_arg, $data[$name]);
     };
-    break;
-
-  case 'regex':
-    $handler = function ($data) use ($name, $custom) {
-      return isset($data[$name]) && preg_match($custom, $data[$name]);
+  } elseif (in_array('custom', $types)) {
+    $cond_2 = function ($data) use ($name, $msg_or_arg) {
+      return isset($data[$name]) && $msg_or_arg($data[$name]);
     };
-    break;
-
-  case 'custom':
-    $handler = function ($data) use ($name, $custom) {
-      return isset($data[$name]) && $custom($data[$name]);
-    };
-    break;
-
-  default:
-    trigger_error("force() type is not supported", E_USER_ERROR);
+  } else {
+    $cond_2 = function () { return true; };
   }
 
-  return array($name, $handler, $message);
+  $routine = function ($data) use ($cond_1, $cond_2) {
+    return $cond_1($data) && $cond_2($data);
+  };
+
+  return array($name, $routine, $msg_or_null ? $msg_or_null : $msg_or_arg);
 }
 ?>

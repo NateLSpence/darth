@@ -25,30 +25,36 @@ The example below shows all that you can do with this.
 require __DIR__."/darth.php";
 
 $validator = darth(
-  // arguments are: field name, validation type, message, custom param
-  force('email', 'email', 'Email is invalid'),
-  force('username', 'required', 'Username is required'),
-  force('password', 'required', 'Password should not be empty'),
-  force('age', 'regex', 'That is not a number!', '/^[0-9]+$/'),
+  // all rules are optional, unless flagged with 'required'
+  force('required|email', 'email', 'Email is invalid'),
+  force('required', 'username', 'Username is required'),
+  // some rules require 4 args, but message is always last
   force(
+    'confirmed',
     'password',
-    'confirmation',
-    'Password needs to match confirmation',
-    'password_confirmation'
+    'password_confirmation', // <-- the field to check for confirmation
+    'Password is invalid or not confirmed'
   ),
-  force('role', 'custom', 'Come to the dark side!', function ($role) {
-    return $role == 'sith';
-  })
+  force(
+    'required|regex',
+    'age',
+    '/^[0-9]+$/', // <-- your regex to use during validation
+    'That is not a number!'
+  ),
+  force(
+    'required|custom',
+    'role',
+    function ($role) { return $role == 'sith'; }, // <-- custom callable
+    'Come to the dark side!'
+  )
 );
 
-// apply the validator to your data
 $errors = $validator(array(
   'email' => 'noodlehaus',
-  'role' => 'developer'
+  'role' => 'developer',
+  'password' => 'abc',
+  'password_confirmation' => '123'
 ));
-
-// apply the validator to your model
-$errors = $validator((array) $dataObject);
 
 var_dump($errors);
 ?>
@@ -69,11 +75,9 @@ array(5) {
     string(20) "Username is required"
   }
   ["password"]=>
-  array(2) {
+  array(1) {
     [0]=>
-    string(28) "Password should not be empty"
-    [1]=>
-    string(36) "Password needs to match confirmation"
+    string(36) "Password is invalid or not confirmed"
   }
   ["age"]=>
   array(1) {

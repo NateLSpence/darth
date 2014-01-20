@@ -2,24 +2,33 @@
 require __DIR__."/darth.php";
 
 $validator = darth(
-  force('email', 'email', 'Email is invalid'),
-  force('username', 'required', 'Username is required'),
-  force('password', 'required', 'Password should not be empty'),
-  force('age', 'regex', 'That is not a number!', '/^[0-9]+$/'),
+  force('required|email', 'email', 'Email is invalid'),
+  force('required', 'username', 'Username is required'),
   force(
+    'confirmed',
     'password',
-    'confirmation',
-    'Password needs to match confirmation',
-    'password_confirmation'
+    'password_confirmation',
+    'Password is invalid or not confirmed'
   ),
-  force('role', 'custom', 'Come to the dark side!', function ($role) {
-    return $role == 'sith';
-  })
+  force(
+    'required|regex',
+    'age',
+    '/^[0-9]+$/',
+    'That is not a number!'
+  ),
+  force(
+    'required|custom',
+    'role',
+    function ($role) { return $role == 'sith'; },
+    'Come to the dark side!'
+  )
 );
 
 $errors = $validator(array(
   'email' => 'noodlehaus',
-  'role' => 'developer'
+  'role' => 'developer',
+  'password' => 'abc',
+  'password_confirmation' => '123'
 ));
 
 var_dump($errors);
