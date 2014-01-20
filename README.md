@@ -6,6 +6,16 @@
 
 To use this, you only need to make `darth()` validator use the `force()`.
 
+Currently, the only supported validation types are:
+
+* required
+* email
+* confirmation
+* regex
+* custom callbacks
+
+Check the example below and the source for reference.
+
 ## example
 
 The example below shows all that you can do with this.
@@ -15,6 +25,7 @@ The example below shows all that you can do with this.
 require __DIR__."/darth.php";
 
 $validator = darth(
+  // arguments are: field name, validation type, message, custom param
   force('email', 'email', 'Email is invalid'),
   force('username', 'required', 'Username is required'),
   force('password', 'required', 'Password should not be empty'),
@@ -30,6 +41,7 @@ $validator = darth(
   })
 );
 
+// apply the validator to your data
 $errors = $validator(array(
   'email' => 'noodlehaus',
   'role' => 'developer'
