@@ -26,7 +26,11 @@ require __DIR__."/darth.php";
 
 $validator = darth(
   // all rules are optional, unless flagged with 'required'
-  force('required|email', 'email', 'Email is invalid'),
+  force(
+    'required|email',
+    'email', // <-- name of the field to check
+    'Email is invalid'
+  ),
   force('required', 'username', 'Username is required'),
   // some rules require 4 args, but message is always last
   force(
@@ -49,6 +53,7 @@ $validator = darth(
   )
 );
 
+// use it against an array
 $errors = $validator(array(
   'email' => 'noodlehaus',
   'role' => 'developer',
@@ -56,6 +61,10 @@ $errors = $validator(array(
   'password_confirmation' => '123'
 ));
 
+// or cast your object into it
+// $errors = $validator((object) $model);
+
+// get your array of fields and messages
 var_dump($errors);
 ?>
 ```
